@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARCO x Digbi Health | Implementation Tracker</title>
+<style>
+  :root {
+    --purple:       #6B21A8;
+    --purple-light: #EDE9FE;
+    --purple-pale:  #F5F3FF;
+    --green:        #15803D;
+    --green-pale:   #DCFCE7;
+    --amber:        #92400E;
+    --amber-pale:   #FEF3C7;
+    --red:          #B91C1C;
+    --red-pale:     #FEE2E2;
+    --blue:         #1D4ED8;
+    --blue-pale:    #EFF6FF;
+    --orange:       #C2410C;
+    --orange-pale:  #FFF7ED;
+    --gray-50:  #F9FAFB;
+    --gray-100: #F0F1F3;
+    --gray-150: #E8EAED;
+    --gray-200: #D8DADF;
+    --gray-300: #B0B4BC;
+    --gray-400: #838892;
+    --gray-500: #5C6370;
+    --gray-600: #424750;
+    --gray-700: #2F333A;
+    --gray-800: #1E2228;
+    --gray-900: #0F1117;
+    --white:    #FFFFFF;
+    --section-alt: #EEF0F4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: #C8CBD2;
+    color: var(--gray-900);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── PAGE WRAPPER ────────────────────── */
+  .page-wrapper {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: var(--white);
+    min-height: 100vh;
+    box-shadow: 0 0 0 1px var(--gray-200), 0 4px 24px rgba(0,0,0,0.08);
+  }
+  .page-top-bar { height: 3px; background: var(--purple); }
+
+  /* ── HEADER ──────────────────────────── */
+  .header {
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 58px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-left  { display: flex; align-items: center; gap: 16px; }
+  .digbi-name   { font-weight: 800; font-size: 16px; color: var(--purple); letter-spacing: -0.3px; }
+  .header-divider { width: 1px; height: 22px; background: var(--gray-200); }
+  .header-title { font-size: 14px; color: var(--gray-500); font-weight: 500; }
+  .header-right { display: flex; align-items: center; gap: 14px; }
+  .last-updated { font-size: 12px; color: var(--gray-400); }
+  .launch-badge {
+    background: var(--purple);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  /* ── HERO ────────────────────────────── */
+  .hero {
+    background: var(--white);
+    padding: 44px 40px 40px;
+    border-bottom: 1px solid var(--gray-150);
+  }
+  .hero-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gray-400);
+    margin-bottom: 10px;
+  }
+  .hero-title {
+    font-size: clamp(28px, 5.5vw, 44px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.05;
+    margin-bottom: 8px;
+    color: var(--gray-900);
+  }
+  .hero-subtitle {
+    font-size: clamp(16px, 3vw, 22px);
+    font-weight: 500;
+    color: var(--gray-500);
+    margin-bottom: 36px;
+  }
+  .hero-stats {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--gray-50);
+  }
+  .hero-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1 1 140px;
+    min-width: 120px;
+    padding: 20px 32px;
+    border-right: 1px solid var(--gray-200);
+  }
+  .hero-stat:last-child { border-right: none; }
+  .hero-stat-value { font-size: clamp(22px, 4vw, 34px); font-weight: 800; letter-spacing: -0.6px; color: var(--gray-900); line-height: 1; }
+  .hero-stat-label { font-size: 13px; color: var(--gray-500); font-weight: 500; }
+
+  /* ── PROGRESS ────────────────────────── */
+  .progress-section {
+    background: var(--white);
+    padding: 20px 40px;
+    border-bottom: 1px solid var(--gray-150);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .progress-label-text { font-size: 15px; font-weight: 700; color: var(--gray-600); white-space: nowrap; }
+  .progress-track { background: var(--gray-150); border-radius: 999px; height: 12px; flex: 1; overflow: hidden; }
+  .progress-fill  {
+    height: 100%;
+    border-radius: 999px;
+    background-color: var(--purple);
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgba(255,255,255,0.13) 0px,
+      rgba(255,255,255,0.13) 14px,
+      transparent            14px,
+      transparent            28px
+    );
+    background-size: 40px 40px;
+    animation: slide-bands 2.5s linear infinite;
+  }
+  @keyframes slide-bands {
+    from { background-position: 0 0; }
+    to   { background-position: 40px 0; }
+  }
+  .progress-pct   { font-size: 15px; font-weight: 800; color: var(--purple); white-space: nowrap; }
+
+  /* ── SECTION BANDS ───────────────────── */
+  .section-band {
+    padding: 40px 40px;
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-150);
+  }
+  .section-band.alt {
+    background: var(--section-alt);
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .section-band:last-child { border-bottom: none; }
+
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.3px;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    margin-bottom: 16px;
+  }
+
+  /* ── AGENDA ──────────────────────────── */
+  .agenda-card {
+    background: var(--white);
+    border-radius: 10px;
+    border: 1px solid var(--gray-200);
+    overflow: hidden;
+  }
+  .agenda-card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--gray-150);
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    background: var(--white);
+  }
+  .agenda-card-title { font-size: 15px; font-weight: 700; color: var(--gray-900); }
+  .agenda-card-sub   { font-size: 13px; color: var(--gray-400); }
+
+  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .agenda-table { width: 100%; border-collapse: collapse; }
+  .agenda-th {
+    padding: 11px 18px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--gray-600);
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+    text-align: left;
+  }
+  .agenda-td {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--gray-100);
+    vertical-align: middle;
+    color: var(--gray-700);
+  }
+  .agenda-tr:last-child .agenda-td { border-bottom: none; }
+  .agenda-tr:hover td { background: var(--gray-50); }
+  .agenda-num-cell { width: 36px; text-align: center; font-size: 13px; font-weight: 600; color: var(--gray-400); }
+  .agenda-topic-title { font-size: 15px; font-weight: 600; color: var(--gray-900); margin-bottom: 3px; }
+  .agenda-topic-desc  { font-size: 13px; color: var(--gray-500); line-height: 1.5; }
+  .agenda-status-cell { width: 160px; vertical-align: middle; }
+  .agenda-doc-cell    { width: 130px; vertical-align: middle; }
+  .agenda-doc-link { font-size: 13px; color: var(--purple); text-decoration: none; font-weight: 600; }
+  .agenda-doc-link:hover { text-decoration: underline; }
+  .agenda-doc-na { font-size: 13px; color: var(--gray-300); }
+
+  .agenda-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .agenda-pill.approval { background: var(--amber-pale); color: var(--amber); }
+  .agenda-pill.action   { background: var(--red-pale);   color: var(--red); }
+  .agenda-pill.update   { background: var(--gray-100);   color: var(--gray-600); }
+  .agenda-pill.info     { background: var(--blue-pale);  color: var(--blue); }
+  .agenda-pill.complete { background: var(--green-pale); color: var(--green); }
+
+  /* ── WORKSTREAM TABLE ────────────────── */
+  .ws-table {
+    background: var(--white);
+    border-radius: 10px;
+    border: 1px solid var(--gray-200);
+    overflow: hidden;
+    width: 100%;
+  }
+  .ws-table-head {
+    display: grid;
+    grid-template-columns: 32px 1fr 170px 150px 120px;
+    background: var(--gray-50);
+    border-bottom: 2px solid var(--gray-200);
+  }
+  .ws-th {
+    padding: 11px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--gray-600);
+    border-right: 1px solid var(--gray-200);
+  }
+  .ws-th:last-child { border-right: none; }
+  .ws-th.num-th { padding: 11px 0; text-align: center; }
+  .ws-table-body { display: flex; flex-direction: column; }
+  .ws-group-name {
+    padding: 9px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--purple);
+    background: var(--gray-50);
+    border-left: 3px solid var(--purple);
+    border-top: 1px solid var(--gray-200);
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .ws-row {
+    display: grid;
+    grid-template-columns: 32px 1fr 170px 150px 120px;
+    border-bottom: 1px solid var(--gray-100);
+    align-items: start;
+  }
+  .ws-row:last-child  { border-bottom: none; }
+  .ws-row:hover { background: var(--gray-50); }
+  .ws-cell {
+    padding: 14px 14px;
+    font-size: 14px;
+    color: var(--gray-700);
+    border-right: 1px solid var(--gray-100);
+    line-height: 1.55;
+  }
+  .ws-cell:last-child { border-right: none; }
+  .ws-cell.task  { font-weight: 600; color: var(--gray-900); }
+  .ws-cell.owner { font-size: 13px; color: var(--gray-500); }
+  .ws-cell.date  { font-size: 13px; color: var(--gray-500); }
+  .ws-cell.num-cell {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gray-300);
+    padding: 16px 0;
+    border-right: 1px solid var(--gray-100);
+  }
+  .task-link {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--purple);
+    text-decoration: none;
+    margin-top: 5px;
+    word-break: break-all;
+  }
+  .task-link:hover { text-decoration: underline; }
+
+  /* Status pills — workstream only */
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 11px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .status-pill.complete    { background: var(--green-pale); color: var(--green); }
+  .status-pill.in-progress { background: var(--blue-pale);  color: var(--blue); }
+  .status-pill.action      { background: var(--red-pale);   color: var(--red); }
+  .status-pill.approval    { background: var(--red-pale);   color: var(--red); }
+  .status-pill.not-started { background: var(--gray-100);   color: var(--gray-600); }
+  .pill-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .complete    .pill-dot { background: var(--green); }
+  .in-progress .pill-dot { background: var(--blue); animation: pulse 1.5s infinite; }
+  .action      .pill-dot { background: var(--red); }
+  .approval    .pill-dot { background: var(--red); }
+  .not-started .pill-dot { background: var(--gray-400); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* Co tags */
+  .owner-wrap { display: flex; flex-direction: column; gap: 5px; }
+  .owner-line { display: flex; align-items: center; gap: 6px; font-size: 13px; flex-wrap: wrap; }
+  .co-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .co-tag.arco      { background: #E0F2FE; color: #0369A1; }
+  .co-tag.lockton   { background: var(--purple-light); color: var(--purple); }
+  .co-tag.digbi     { background: var(--purple); color: white; }
+  .co-tag.umr       { background: var(--orange-pale); color: var(--orange); }
+
+  /* ── TIMELINE ────────────────────────── */
+  .timeline {
+    background: var(--white);
+    border-radius: 10px;
+    border: 1px solid var(--gray-200);
+    padding: 28px 32px;
+    position: relative;
+  }
+  /* line: padding-left(32) + date(56) + gap(20) + half-dot(12) = 120px */
+  .timeline-line {
+    position: absolute;
+    left: 120px;
+    top: 28px;
+    bottom: 28px;
+    width: 2px;
+    background: var(--gray-200);
+  }
+  .tl-item {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--gray-100);
+    position: relative;
+  }
+  .tl-item:last-child { border-bottom: none; }
+  .tl-date {
+    width: 56px;
+    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gray-500);
+    line-height: 1.3;
+    text-align: right;
+    padding-top: 1px;
+  }
+  .tl-dot-wrap {
+    width: 24px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    z-index: 1;
+    padding-top: 1px;
+  }
+  .tl-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2.5px solid var(--white);
+    box-shadow: 0 0 0 2px currentColor;
+    flex-shrink: 0;
+  }
+  .tl-dot.done     { color: var(--green);    background: var(--green); }
+  .tl-dot.active   { color: var(--green);    background: var(--green); animation: pulse 1.5s infinite; }
+  .tl-dot.upcoming { color: var(--gray-300); background: var(--gray-300); }
+  .tl-content { flex: 1; }
+  .tl-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: 2px;
+    line-height: 1.4;
+  }
+  .tl-title.done-title { color: var(--gray-500); font-weight: 600; }
+  .tl-detail { font-size: 13px; color: var(--gray-500); line-height: 1.5; }
+
+  .account-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px 24px; }
+  .account-item { display: flex; flex-direction: column; gap: 4px; }
+  .account-item.span-2 { grid-column: span 2; }
+  .account-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--gray-500);
+  }
+  .account-value { font-size: 14px; font-weight: 600; color: var(--gray-900); line-height: 1.45; }
+  .tl-num {
+    display: inline-block;
+    width: 24px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gray-300);
+    margin-right: 2px;
+  }
+
+  /* ── CONTACTS ────────────────────────── */
+  .contacts-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  .contact-group {
+    background: var(--white);
+    border-radius: 10px;
+    border: 1px solid var(--gray-200);
+    padding: 20px 22px;
+  }
+  .contact-group-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--gray-150);
+  }
+  .contact-person { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .contact-person:last-child { margin-bottom: 0; }
+  .contact-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+  }
+  .contact-avatar.arco    { background: #0369A1; }
+  .contact-avatar.lockton { background: var(--purple); }
+  .contact-avatar.digbi   { background: var(--green); }
+  .contact-info { flex: 1; }
+  .contact-name-row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .contact-name { font-size: 13px; font-weight: 600; color: var(--gray-800); }
+  .contact-role-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    background: var(--gray-100);
+    color: var(--gray-600);
+    white-space: nowrap;
+  }
+  .contact-sub { font-size: 11px; color: var(--gray-500); margin-top: 1px; }
+
+  /* ── FOOTER ──────────────────────────── */
+  .footer {
+    background: var(--gray-50);
+    border-top: 1px solid var(--gray-200);
+    padding: 18px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-left  { font-size: 12px; color: var(--gray-500); }
+  .footer-right { font-size: 12px; color: var(--gray-500); display: flex; gap: 20px; }
+  .footer-link  { color: var(--purple); text-decoration: none; font-weight: 600; }
+
+  /* ── COMPASS TAG ─────────────────────── */
+  .compass-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--purple);
+    border: 1.5px solid rgba(107,33,168,0.22);
+    background: var(--purple-pale);
+    padding: 4px 10px 4px 8px;
+    border-radius: 6px;
+    margin-bottom: 14px;
+  }
+  .compass-tag-icon {
+    width: 15px;
+    height: 15px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── RESPONSIVE: TABLET (≤ 800px) ────── */
+  @media (max-width: 800px) {
+    .hero, .section-band, .header, .progress-section, .footer { padding-left: 24px; padding-right: 24px; }
+    .contacts-grid { grid-template-columns: 1fr 1fr; }
+    .account-grid { grid-template-columns: 1fr 1fr; }
+    .ws-table-head, .ws-row { grid-template-columns: 32px 1fr 140px 120px; }
+    .ws-th:nth-child(5), .ws-row .ws-cell:nth-child(5) { display: none; }
+    .hero-stat { padding: 16px 20px; flex-basis: 45%; }
+    .timeline-line { left: 96px; }
+    .tl-date { width: 44px; }
+  }
+
+  /* ── RESPONSIVE: PHONE (≤ 480px) ─────── */
+  @media (max-width: 480px) {
+    .header { flex-wrap: wrap; height: auto; padding: 12px 20px; gap: 8px; }
+    .hero, .section-band, .header, .progress-section, .footer { padding-left: 18px; padding-right: 18px; }
+    .hero { padding-top: 32px; padding-bottom: 28px; }
+    .hero-stat { flex-basis: 100%; border-right: none; border-bottom: 1px solid var(--gray-200); }
+    .hero-stat:last-child { border-bottom: none; }
+    .contacts-grid { grid-template-columns: 1fr; }
+    .account-grid { grid-template-columns: 1fr; }
+    .account-item.span-2 { grid-column: span 1; }
+    .ws-table-head, .ws-row { grid-template-columns: 28px 1fr 120px; }
+    .ws-th:nth-child(3), .ws-row .ws-cell:nth-child(3) { display: none; }
+    .footer { flex-direction: column; align-items: flex-start; gap: 8px; }
+  }
+
+  /* Collapsible workstreams */
+  .ws-section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0;
+  }
+  .ws-section-header .section-title { margin-bottom: 0; }
+  .ws-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 5px;
+    border: 1.5px solid var(--gray-300);
+    background: var(--white);
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--gray-500);
+    line-height: 1;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+    user-select: none;
+    padding: 0;
+  }
+  .ws-toggle-btn:hover { border-color: var(--purple); color: var(--purple); background: var(--purple-pale); }
+  .ws-toggle-hint { font-size: 12px; color: var(--gray-400); }
+  .ws-collapsible { display: none; margin-top: 16px; }
+  .ws-collapsible.open { display: block; }
+</style>
+</head>
+<body>
+<div class="page-wrapper">
+
+<div class="page-top-bar"></div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-left">
+    <span class="digbi-name">Digbi Health</span>
+    <div class="header-divider"></div>
+    <span class="header-title">ARCO Implementation Tracker</span>
+  </div>
+  <div class="header-right">
+    <span class="last-updated">Updated Aug 25, 2026</span>
+    <span class="launch-badge">🚀 Launch Jan 1</span>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="compass-tag">
+    <span class="compass-tag-icon"><svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="6.5" cy="6.5" r="5.5" stroke="#6B21A8" stroke-width="1.4"/><circle cx="6.5" cy="6.5" r="2" fill="#6B21A8"/><line x1="6.5" y1="1" x2="6.5" y2="3.5" stroke="#6B21A8" stroke-width="1.4" stroke-linecap="round"/><line x1="6.5" y1="9.5" x2="6.5" y2="12" stroke="#6B21A8" stroke-width="1.4" stroke-linecap="round"/><line x1="12" y1="6.5" x2="9.5" y2="6.5" stroke="#6B21A8" stroke-width="1.4" stroke-linecap="round"/><line x1="3.5" y1="6.5" x2="1" y2="6.5" stroke="#6B21A8" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+    Digbi Compass
+  </div>
+  <h1 class="hero-title">ARCO × Digbi Health</h1>
+  <div class="hero-subtitle">Hybrid Cardiometabolic and Digestive Care Launch</div>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <span class="hero-stat-value">Jan 1</span>
+      <span class="hero-stat-label">Launch Date</span>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-value">4,420</span>
+      <span class="hero-stat-label">Covered Lives</span>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-value" id="days-until-launch">--</span>
+      <span class="hero-stat-label">Weeks Until Launch</span>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-value">Hybrid</span>
+      <span class="hero-stat-label">Program Type</span>
+    </div>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-section">
+  <span class="progress-label-text">Implementation Progress</span>
+  <div class="progress-track">
+    <div class="progress-fill" style="width:0%;"></div>
+  </div>
+  <span class="progress-pct">0%</span>
+</div>
+
+<!-- ── CRITICAL UPDATES ───────────────────────── -->
+<div class="section-band">
+  <div class="section-title">Critical Updates</div>
+  <div class="agenda-card">
+    <div class="agenda-card-header">
+      <span class="agenda-card-title">📋 Implementation</span>
+      <span class="agenda-card-sub">ARCO · Lockton · Digbi Health</span>
+    </div>
+    <div style="padding: 16px 20px; color: var(--gray-400); font-size: 14px;">No critical updates yet.</div>
+  </div>
+</div>
+
+<!-- ── IMPLEMENTATION DOCS ─────────────────────── -->
+<div class="section-band alt">
+  <div class="section-title">Implementation Docs</div>
+  <div style="padding: 16px 20px; color: var(--gray-400); font-size: 14px;">No documents uploaded yet.</div>
+</div>
+
+<!-- ACCOUNT DETAILS -->
+<div class="section-band">
+  <div class="section-title">Account Details</div>
+  <div class="account-grid">
+    <div class="account-item">
+      <span class="account-label">Broker</span>
+      <span class="account-value">Lockton</span>
+    </div>
+    <div class="account-item">
+      <span class="account-label">Health Plan</span>
+      <span class="account-value">UMR</span>
+    </div>
+    <div class="account-item">
+      <span class="account-label">PBM</span>
+      <span class="account-value">OptumRx (2027 PBM TBD)</span>
+    </div>
+    <div class="account-item">
+      <span class="account-label">Contracting</span>
+      <span class="account-value">Direct — ARCO Companies, LLC</span>
+    </div>
+    <div class="account-item">
+      <span class="account-label">File Frequency</span>
+      <span class="account-value">TBD</span>
+    </div>
+    <div class="account-item">
+      <span class="account-label">Spanish Support</span>
+      <span class="account-value">TBD</span>
+    </div>
+    <div class="account-item">
+      <span class="account-label">Industry</span>
+      <span class="account-value">Construction / Engineering</span>
+    </div>
+    <div class="account-item">
+      <span class="account-label">State</span>
+      <span class="account-value">Missouri</span>
+    </div>
+    <div class="account-item">
+      <span class="account-label">Timezone</span>
+      <span class="account-value">Central Time (CT)</span>
+    </div>
+    <div class="account-item span-2">
+      <span class="account-label">Billing Terms</span>
+      <span class="account-value">Milestone-based — Registration, At-home kits, Quarterly engagement (PPPY fees invoiced to ARCO)</span>
+    </div>
+    <div class="account-item span-2">
+      <span class="account-label">Eligibility Criteria</span>
+      <span class="account-value">Standard Criteria — to confirm at kickoff for any deviations</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── TIMELINE ───────────────────────────────── -->
+<div class="section-band">
+  <div class="section-title">Implementation Timeline</div>
+  <div class="timeline">
+    <div class="timeline-line"></div>
+
+    <div class="tl-item">
+      <div class="tl-date">Oct 3</div>
+      <div class="tl-dot-wrap"><div class="tl-dot upcoming"></div></div>
+      <div class="tl-content">
+        <div class="tl-title"><span class="tl-num">01</span>Kickoff call scheduled + team aligned</div>
+        <div class="tl-detail">All teams aligned on scope, covered population, and program timeline.</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-date">Oct 18</div>
+      <div class="tl-dot-wrap"><div class="tl-dot upcoming"></div></div>
+      <div class="tl-content">
+        <div class="tl-title"><span class="tl-num">02</span>Contract signed</div>
+        <div class="tl-detail">Implementation agreement finalized.</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-date">Nov 2</div>
+      <div class="tl-dot-wrap"><div class="tl-dot upcoming"></div></div>
+      <div class="tl-content">
+        <div class="tl-title"><span class="tl-num">03</span>Eligibility process initiated</div>
+        <div class="tl-detail">Direction to Disclose Letter sent; eligibility feed setup begins with UMR.</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-date">Nov 17</div>
+      <div class="tl-dot-wrap"><div class="tl-dot upcoming"></div></div>
+      <div class="tl-content">
+        <div class="tl-title"><span class="tl-num">04</span>IT whitelist submitted</div>
+        <div class="tl-detail">Whitelist package delivered to UMR.</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-date">Dec 2</div>
+      <div class="tl-dot-wrap"><div class="tl-dot upcoming"></div></div>
+      <div class="tl-content">
+        <div class="tl-title"><span class="tl-num">05</span>Platform configuration complete</div>
+        <div class="tl-detail">Iterable, enrollment URL, and billing all set up.</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-date">Dec 11</div>
+      <div class="tl-dot-wrap"><div class="tl-dot upcoming"></div></div>
+      <div class="tl-content">
+        <div class="tl-title"><span class="tl-num">06</span>Materials + approvals complete</div>
+        <div class="tl-detail">Outreach plan, email templates, and collateral approved.</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-date">Dec 18</div>
+      <div class="tl-dot-wrap"><div class="tl-dot upcoming"></div></div>
+      <div class="tl-content">
+        <div class="tl-title"><span class="tl-num">07</span>Pre-launch outreach begins</div>
+        <div class="tl-detail">Awareness email sent to all eligible members.</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-date">Dec 25</div>
+      <div class="tl-dot-wrap"><div class="tl-dot upcoming"></div></div>
+      <div class="tl-content">
+        <div class="tl-title"><span class="tl-num">08</span>Final push communications</div>
+        <div class="tl-detail">Reminder email and flyer distribution.</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-date">Jan 1, 2027</div>
+      <div class="tl-dot-wrap"><div class="tl-dot active"></div></div>
+      <div class="tl-content">
+        <div class="tl-title"><span class="tl-num">09</span>🚀 Program Launch — Enrollment Opens</div>
+        <div class="tl-detail">Digbi Health goes live for 4,420 ARCO covered lives.</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-date">Jan 15, 2027</div>
+      <div class="tl-dot-wrap"><div class="tl-dot upcoming"></div></div>
+      <div class="tl-content">
+        <div class="tl-title"><span class="tl-num">10</span>Post-launch check-in</div>
+        <div class="tl-detail">First check-in with client on enrollment and member activity.</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-date">Jan 31, 2027</div>
+      <div class="tl-dot-wrap"><div class="tl-dot upcoming"></div></div>
+      <div class="tl-content">
+        <div class="tl-title"><span class="tl-num">11</span>30-day enrollment review</div>
+        <div class="tl-detail">Enrollment funnel reviewed; NPS survey deployed.</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-date">Mar 2, 2027</div>
+      <div class="tl-dot-wrap"><div class="tl-dot upcoming"></div></div>
+      <div class="tl-content">
+        <div class="tl-title"><span class="tl-num">12</span>60-day outcomes review</div>
+        <div class="tl-detail">Outcomes data shared with client.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── WORKSTREAMS ─────────────────────────────── -->
+<div class="section-band alt">
+  <div class="ws-section-header">
+    <div class="section-title">Implementation Workstreams</div>
+    <button class="ws-toggle-btn" id="ws-toggle" onclick="toggleWorkstreams()">+</button>
+    <span class="ws-toggle-hint" id="ws-toggle-hint">20 tasks &mdash; click to expand</span>
+  </div>
+  <div class="ws-collapsible" id="ws-collapsible">
+  <div class="ws-table">
+    <div class="ws-table-head">
+      <div class="ws-th num-th">#</div>
+      <div class="ws-th">Task</div>
+      <div class="ws-th">Owner</div>
+      <div class="ws-th">Status</div>
+      <div class="ws-th">Due Date</div>
+    </div>
+    <div class="ws-table-body">
+
+      <div class="ws-group-name">Kickoff &amp; Contracting</div>
+      <div class="ws-row">
+        <div class="ws-cell num-cell">01</div>
+        <div class="ws-cell task">ARCO kick-off call</div>
+        <div class="ws-cell owner"><div class="owner-line"><span class="co-tag digbi">Digbi</span> Aniiket, Hira</div></div>
+        <div class="ws-cell"><span class="status-pill not-started"><div class="pill-dot"></div>Not Started</span></div>
+        <div class="ws-cell date">Oct 3, 2026</div>
+      </div>
+      <div class="ws-row">
+        <div class="ws-cell num-cell">02</div>
+        <div class="ws-cell task">ARCO × Digbi contracting</div>
+        <div class="ws-cell owner"><div class="owner-line"><span class="co-tag digbi">Digbi</span> Aniiket</div></div>
+        <div class="ws-cell"><span class="status-pill not-started"><div class="pill-dot"></div>Not Started</span></div>
+        <div class="ws-cell date">Oct 18, 2026</div>
+      </div>
+
+      <div class="ws-group-name">Eligibility File Feed (UMR)</div>
+      <div class="ws-row">
+        <div class="ws-cell num-cell">03</div>
+        <div class="ws-cell task">Direction to Disclose Letter — ARCO to sign</div>
+        <div class="ws-cell owner"><div class="owner-line"><span class="co-tag arco">ARCO</span> Tiffany Stern</div></div>
+        <div class="ws-cell"><span class="status-pill not-started"><div class="pill-dot"></div>Not Started</span></div>
+        <div class="ws-cell date">Nov 2, 2026</div>
+      </div>
+      <div class="ws-row">
+        <div class="ws-cell num-cell">04</div>
+        <div class="ws-cell task">Eligibility feed setup with UMR</div>
+        <div class="ws-cell owner"><div class="owner-line"><span class="co-tag digbi">Digbi</span> Bala</div></div>
+        <div class="ws-cell"><span class="status-pill not-started"><div class="pill-dot"></div>Not Started</span></div>
+        <div class="ws-cell date">Nov 17, 2026</div>
+      </div>
+
+      <div class="ws-group-name">IT Whitelist &amp; System Configuration</div>
+      <div class="ws-row">
+        <div class="ws-cell num-cell">05</div>
+        <div class="ws-cell task">IT whitelist submission to UMR</div>
+        <div class="ws-cell owner"><div class="owner-line"><span class="co-tag arco">ARCO</span> IT Team</div></div>
+        <div class="ws-cell"><span class="status-pill not-started"><div class="pill-dot"></div>Not Started</span></div>
+        <div class="ws-cell date">Nov 17, 2026</div>
+      </div>
+      <div class="ws-row">
+        <div class="ws-cell num-cell">06</div>
+        <div class="ws-cell task">Whitelist confirmation from UMR</div>
+        <div class="ws-cell owner"><div class="owner-line"><span class="co-tag digbi">Digbi</span> Bala</div></div>
+        <div class="ws-cell"><span class="status-pill not-started"><div class="pill-dot"></div>Not Started</span></div>
+        <div class="ws-cell date">Dec 2, 2026</div>
+      </div>
+      <div class="ws-row">
+        <div class="ws-cell num-cell">07</div>
+        <div class="ws-cell task">Iterable employer setup (list, snippets, suppression)</div>
+        <div class="ws-cell owner"><div class="owner-line"><span class="co-tag digbi">Digbi</span> Harshal</div></div>
+        <div class="ws-cell"><span class="status-pill not-started"><div class="pill-dot"></div>Not Started</span></div>
+        <div class="ws-cell date">Dec 2, 2026</div>
+      </div>
+      <div class="ws-row">
+        <div class="ws-cell num-cell">08</div>
+        <div class="ws-cell task">
+          Enrollment URL + landing page configured
+          <a class="task-link" href="https://go.digbihealth.ai/arco" target="_blank">go.digbihealth.ai/arco ↗</a>
+        </div>
+        <div class="ws-cell owner"><div class="owner-line"><span class="co-tag digbi">Digbi</span> Bhupendra</div></div>
+        <div class="ws-cell"><span class="status-pill not-started"><div class="pill-dot"></div>Not Started</span></div>
+        <div class="ws-cell date">Dec 2, 2026</div>
+      </div>
+      <div class="ws-row">
+        <div class="ws-cell num-cell">09</div>
+        <div class="ws-cell task">Billing setup complete</div>
+        <div class="ws-cell owner"><div class="owner-line"><span class="co-tag digbi">Digbi</span> Vidhya</div></div>
+        <div class="ws-cell"><span class="status-pill not-started"><div class="pill-dot"></div>Not Started</span></div>
+        <div class="ws-cell date">Dec 11, 2026</div>
+      </div>
+
+      <div class="ws-group-name">Materials &amp; Approvals</div>
+      <div class="ws-row">
+        <div class="ws-cell num-cell">10</div>
+        <div class="ws-cell task">Outreach plan drafted</div>
+        <div class="ws-cell owner"><div class="owner-line"><span class="co-tag digbi">Digbi</span> Aniiket</div></div>
+        <div class="ws-cell"><span class="status-pill not-started"><div class="pill-dot"></div>Not Started</span></div>
+        <div class="ws-cell date">Dec 2, 2026</div>
+      </div>
+      <div class="ws-row">
+        <div class="ws-cell num-cell">11</div>
+        <div class="ws-cell task">Member communications plan — ARCO approval</div>
+        <div class="ws-cell owner"><div class="owner-line"><span class="co-tag arco">ARCO</span> Kelly Oliver</div></div>
+        <div class="ws-cell"><span class="status-pill not-started"><div class="pill-dot"></div>Not Started</span></div>
+        <div class="ws-cell date">Dec 11, 2026</div>
+      </div>
+      <div class="ws-row">
+        <div class="ws-cell num-cell">12</div>
+        <div class="ws-cell task">Email templates — ARCO approval</div>
+        <div class="ws-cell owner"><div class="owner-line"><span class="co-tag arco">ARCO</span> Kelly Oliver</div></div>
+        <div class="ws-cell"><span class="status-pill not-started"><div class="pill-dot"></div>Not Started</span></div>
+        <div class="ws-cell date">Dec 11, 2026</div>
+      </div>
+      <div class="ws-row">
+        <div class="ws-cell num-cell">13</div>
+        <div class="ws-cell task">Employer benefit snippet — approved</div>
+        <div class="ws-cell owner"><div class="owner-line"><span class="co-tag arco">ARCO</span> Kelly Oliver</div></div>
+        <div class="ws-cell"><span class="status-pill not-started"><div class="pill-dot"></div>Not Started</span></div>
+        <div class="ws-cell date">Dec 11, 2026</div>
+      </div>
+      <div class="ws-row">
+        <div class="ws-cell num-cell">14</div>
+        <div class="ws-cell task">Collateral (flyers, posters, digital assets) — approved</div>
+        <div class="ws-cell owner"><div class="owner-line"><span class="co-tag digbi">Digbi</span> Harshal</div></div>
+        <div class="ws-cell"><span class="status-pill not-started"><div class="pill-dot"></div>Not Started</span></div>
+        <div class="ws-cell date">Dec 18, 2026</div>
+      </div>
+
+      <div class="ws-group-name">Member Outreach</div>
+      <div class="ws-row">
+        <div class="ws-cell num-cell">15</div>
+        <div class="ws-cell task">Pre-launch communication sequence live</div>
+        <div class="ws-cell owner"><div class="owner-line"><span class="co-tag digbi">Digbi</span> Aniiket</div></div>
+        <div class="ws-cell"><span class="status-pill not-started"><div class="pill-dot"></div>Not Started</span></div>
+        <div class="ws-cell date">Dec 25, 2026</div>
+      </div>
+      <div class="ws-row">
+        <div class="ws-cell num-cell">16</div>
+        <div class="ws-cell task">Launch email sent</div>
+        <div class="ws-cell owner"><div class="owner-line"><span class="co-tag digbi">Digbi</span> Aniiket</div></div>
+        <div class="ws-cell"><span class="status-pill not-started"><div class="pill-dot"></div>Not Started</span></div>
+        <div class="ws-cell date">Jan 1, 2027</div>
+      </div>
+      <div class="ws-row">
+        <div class="ws-cell num-cell">17</div>
+        <div class="ws-cell task">Enrollment tracking active</div>
+        <div class="ws-cell owner"><div class="owner-line"><span class="co-tag digbi">Digbi</span> Bala</div></div>
+        <div class="ws-cell"><span class="status-pill not-started"><div class="pill-dot"></div>Not Started</span></div>
+        <div class="ws-cell date">Jan 1, 2027</div>
+      </div>
+
+      <div class="ws-group-name">Post-Launch Monitoring</div>
+      <div class="ws-row">
+        <div class="ws-cell num-cell">18</div>
+        <div class="ws-cell task">NPS survey deployed</div>
+        <div class="ws-cell owner"><div class="owner-line"><span class="co-tag digbi">Digbi</span> Aniiket</div></div>
+        <div class="ws-cell"><span class="status-pill not-started"><div class="pill-dot"></div>Not Started</span></div>
+        <div class="ws-cell date">Jan 8, 2027</div>
+      </div>
+      <div class="ws-row">
+        <div class="ws-cell num-cell">19</div>
+        <div class="ws-cell task">30-day enrollment check-in</div>
+        <div class="ws-cell owner"><div class="owner-line"><span class="co-tag digbi">Digbi</span> Garima</div></div>
+        <div class="ws-cell"><span class="status-pill not-started"><div class="pill-dot"></div>Not Started</span></div>
+        <div class="ws-cell date">Jan 31, 2027</div>
+      </div>
+      <div class="ws-row">
+        <div class="ws-cell num-cell">20</div>
+        <div class="ws-cell task">60-day outcomes review</div>
+        <div class="ws-cell owner"><div class="owner-line"><span class="co-tag digbi">Digbi</span> Garima</div></div>
+        <div class="ws-cell"><span class="status-pill not-started"><div class="pill-dot"></div>Not Started</span></div>
+        <div class="ws-cell date">Mar 2, 2027</div>
+      </div>
+
+    </div>
+  </div>
+  </div>
+</div>
+
+<!-- ── TEAM ───────────────────────────────────── -->
+<div class="section-band alt">
+  <div class="section-title">Implementation Team</div>
+  <div class="contacts-grid">
+
+    <div class="contact-group">
+      <div class="contact-group-label">ARCO</div>
+      <div class="contact-person">
+        <div class="contact-avatar arco">KO</div>
+        <div class="contact-info">
+          <div class="contact-name-row"><span class="contact-name">Kelly Oliver</span></div>
+        </div>
+      </div>
+      <div class="contact-person">
+        <div class="contact-avatar arco">TS</div>
+        <div class="contact-info">
+          <div class="contact-name-row"><span class="contact-name">Tiffany Stern</span></div>
+        </div>
+      </div>
+      <div class="contact-person">
+        <div class="contact-avatar arco">KG</div>
+        <div class="contact-info">
+          <div class="contact-name-row"><span class="contact-name">Kristen Gusewelle</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-group">
+      <div class="contact-group-label">Lockton (Broker)</div>
+      <div class="contact-person">
+        <div class="contact-avatar lockton">MT</div>
+        <div class="contact-info">
+          <div class="contact-name-row"><span class="contact-name">Megan Thomas</span></div>
+        </div>
+      </div>
+      <div class="contact-person">
+        <div class="contact-avatar lockton">GF</div>
+        <div class="contact-info">
+          <div class="contact-name-row"><span class="contact-name">Grace Farnan</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-group">
+      <div class="contact-group-label">Digbi Health</div>
+      <div class="contact-person">
+        <div class="contact-avatar digbi">AS</div>
+        <div class="contact-info">
+          <div class="contact-name-row">
+            <span class="contact-name">Aniiket Sengar</span>
+            <span class="contact-role-tag">Head of Marketing</span>
+          </div>
+        </div>
+      </div>
+      <div class="contact-person">
+        <div class="contact-avatar digbi">AH</div>
+        <div class="contact-info">
+          <div class="contact-name-row">
+            <span class="contact-name">Aalakshaya Hira</span>
+            <span class="contact-role-tag">Implementation</span>
+          </div>
+        </div>
+      </div>
+      <div class="contact-person">
+        <div class="contact-avatar digbi">GA</div>
+        <div class="contact-info">
+          <div class="contact-name-row">
+            <span class="contact-name">Garima</span>
+            <span class="contact-role-tag">Account Manager</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-left">For ARCO and Lockton · Digbi Health · Implementation Tracker · Aug 25, 2026</div>
+  <div class="footer-right">
+    <a href="mailto:aniiket@digbihealth.com" class="footer-link">aniiket@digbihealth.com</a>
+    <span>digbihealth.com</span>
+  </div>
+</footer>
+
+</div><!-- end page-wrapper -->
+
+<script>
+(function() {
+  // Weeks until launch
+  var launch = new Date('2027-01-01');
+  launch.setHours(0, 0, 0, 0);
+  var today  = new Date();
+  today.setHours(0, 0, 0, 0);
+  var diff = Math.ceil((launch - today) / (1000 * 60 * 60 * 24));
+  var weeksDiff = Math.ceil(diff / 7);
+  var daysEl = document.getElementById('days-until-launch');
+  if (daysEl) {
+    daysEl.textContent = diff > 0 ? weeksDiff + ' wks' : diff === 0 ? 'Today!' : 'Launched';
+  }
+
+  // Weights: complete=1.0, in-progress=0.4, everything else=0
+  var rows = document.querySelectorAll('.ws-row');
+  var total = 0, weighted = 0;
+  rows.forEach(function(row) {
+    var pill = row.querySelector('.status-pill');
+    if (!pill) return;
+    total++;
+    if (pill.classList.contains('complete'))    weighted += 1.0;
+    else if (pill.classList.contains('in-progress')) weighted += 0.4;
+  });
+  var pct = total > 0 ? Math.round((weighted / total) * 100) : 0;
+  var fill  = document.querySelector('.progress-fill');
+  var label = document.querySelector('.progress-pct');
+  if (fill)  fill.style.width = pct + '%';
+  if (label) label.textContent = pct + '%';
+})();
+
+function toggleWorkstreams() {
+  var container = document.getElementById('ws-collapsible');
+  var btn = document.getElementById('ws-toggle');
+  var hint = document.getElementById('ws-toggle-hint');
+  var isOpen = container.classList.contains('open');
+  if (isOpen) {
+    container.classList.remove('open');
+    btn.textContent = '+';
+    hint.textContent = '20 tasks — click to expand';
+  } else {
+    container.classList.add('open');
+    btn.textContent = '−';
+    hint.textContent = 'Click to collapse';
+  }
+}
+</script>
+</body>
+</html>
